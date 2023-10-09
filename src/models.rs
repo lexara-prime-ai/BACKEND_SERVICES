@@ -6,9 +6,13 @@ use crate::schema::*;
 
 #[derive(Queryable, AsChangeset, Deserialize, Serialize)]
 pub struct Rustacean {
+    // Make the id optional e.g when creating the payload for the update
+    #[serde(skip_deserializing)]
     pub id: i32,
     pub name: String,
     pub email: String,
+    // This value should never change so we should skip it as well
+    #[serde(skip_deserializing)]
     pub created_at: NaiveDateTime,
 }
 
