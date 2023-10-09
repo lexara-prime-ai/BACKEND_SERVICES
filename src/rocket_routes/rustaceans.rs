@@ -2,7 +2,7 @@ use rocket::http::Status;
 use rocket::response::status::{Custom, NoContent};
 use rocket::serde::json::{Json, serde_json::json, Value};
 
-use crate::DbConn;
+use crate::rocket_routes::DbConn;
 use crate::models::*;
 use crate::repositories::RustaceanRepository;
 
