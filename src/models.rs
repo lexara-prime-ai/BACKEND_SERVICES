@@ -1,9 +1,10 @@
 use chrono::NaiveDateTime;
 use diesel::{AsChangeset, Insertable, Queryable};
 use rocket::serde::Deserialize;
+use serde::Serialize;
 use crate::schema::*;
 
-#[derive(Queryable, AsChangeset, Deserialize)]
+#[derive(Queryable, AsChangeset, Deserialize, Serialize)]
 pub struct Rustacean {
     pub id: i32,
     pub name: String,
