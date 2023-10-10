@@ -2,7 +2,7 @@ use rocket::http::Status;
 use rocket::response::status::{Custom, NoContent};
 use rocket::serde::json::{Json, serde_json::json, Value};
 
-use crate::rocket_routes::{DbConn, server_error};
+use crate::rocket_routes::{DbConn, not_found, server_error};
 use crate::models::*;
 use crate::repositories::CrateRepository;
 
@@ -25,7 +25,7 @@ pub async fn view_crate(id: i32, db: DbConn) -> Result<Value, Custom<Value>> {
             Ok(a_crate) => Ok(json!(a_crate)),
             Err(e) => {
                 if let diesel::result::Error::NotFound = e {
-                    Err(server_error(e.into()))
+                    Err(not_found(e.into()))
                 } else {
                     Err(server_error(e.into()))
                 }

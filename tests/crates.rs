@@ -113,6 +113,20 @@ fn test_view_crate() {
     common::delete_test_rustacean(&client, rustacean);
 }
 
+// Test for non existent crate
+#[test]
+fn test_view_nonexistent_crate() {
+    let client = Client::new();
+    let non_existent_id = 64290;
+
+    let response = client.get(format!("{}/crates/{}", common::APP_HOST, non_existent_id))
+        .send()
+        .unwrap();
+
+    assert_eq!(response.status(), StatusCode::NOT_FOUND);
+}
+
+
 #[test]
 fn test_update_crate() {
     let client = Client::new();

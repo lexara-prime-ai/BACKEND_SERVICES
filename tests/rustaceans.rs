@@ -87,6 +87,19 @@ fn test_view_rustacean() {
     common::delete_test_rustacean(&client, rustacean);
 }
 
+// Test for non existent rustacean
+#[test]
+fn test_view_nonexistent_rustacean() {
+    let client = Client::new();
+    let non_existent_id = 64290;
+
+    let response = client.get(format!("{}/rustaceans/{}", common::APP_HOST, non_existent_id))
+        .send()
+        .unwrap();
+
+    assert_eq!(response.status(), StatusCode::NOT_FOUND);
+}
+
 #[test]
 fn test_update_rustacean() {
     let client = Client::new();
