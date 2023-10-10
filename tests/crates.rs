@@ -146,6 +146,37 @@ fn test_update_crate() {
         "created_at": a_crate["created_at"],
     }));
 
+    let rustacean2 = common::create_test_rustacean(&client);
+    // Test author switching
+    let response = client.put(format!("{}/crates/{}", common::APP_HOST, a_crate["id"]))
+        .json(&json!({
+            "rustacean_id": rustacean2["id"],
+            "code": "updated code",
+            "name": "updated crate",
+            "version": "updated version",
+            "description": "updated description",
+        }))
+        .send()
+        .unwrap();
+
+    assert_eq!(response.status(), StatusCode::OK);
+
+    // Reassign new response value to a_crate
+    let a_crate: Value = response.json().unwrap();
+
+
+    // Assert the new payload
+    assert_eq!(a_crate, json!({
+        "id": a_crate["id"],
+        "rustacean_id": rustacean2["id"],
+        "code": "updated code",
+        "name": "updated crate",
+        "version": "updated version",
+        "description": "updated description",
+        "created_at": a_crate["created_at"],
+    }));
+
+
     // CLEAN UP
     // In this case order matters due to the table relationships
     // -> Attempting to delete the rustacean first will result in a error

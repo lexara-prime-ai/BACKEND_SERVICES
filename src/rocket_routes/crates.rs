@@ -2,7 +2,7 @@ use rocket::http::Status;
 use rocket::response::status::{Custom, NoContent};
 use rocket::serde::json::{Json, serde_json::json, Value};
 
-use crate::rocket_routes::DbConn;
+use crate::rocket_routes::{DbConn, server_error};
 use crate::models::*;
 use crate::repositories::CrateRepository;
 
@@ -12,7 +12,7 @@ pub async fn get_crates(db: DbConn) -> Result<Value, Custom<Value>> {
     db.run(|c| {
         CrateRepository::find_multiple(c, 100)
             .map(|crates| json!(crates))
-            .map_err(|_| Custom(Status::InternalServerError, json!("Error")))
+            .map_err(|e| server_error(e.into()))
     }).await
 }
 
@@ -22,7 +22,7 @@ pub async fn view_crate(id: i32, db: DbConn) -> Result<Value, Custom<Value>> {
     db.run(move |c| {
         CrateRepository::find(c, id)
             .map(|a_crate| json!(a_crate))
-            .map_err(|_| Custom(Status::InternalServerError, json!("Error")))
+            .map_err(|e| server_error(e.into()))
     }).await
 }
 
@@ -33,7 +33,7 @@ pub async fn create_crate(new_crate: Json<NewCrate>, db: DbConn) -> Result<Custo
         CrateRepository::create(c, new_crate.into_inner())
             .map(|a_crate| Custom(Status::Created, json!(a_crate)))
             // Are you sure you want to expose info. about the database |e|, be sure to do away with 'e,to_string()'
-            .map_err(|e| Custom(Status::InternalServerError, json!(e.to_string())))
+            .map_err(|e| server_error(e.into()))
     }).await
 }
 
@@ -43,7 +43,8 @@ pub async fn update_crate(id: i32, a_crate: Json<Crate>, db: DbConn) -> Result<V
         // Use into_inner in order to unwrap new_crate from json
         CrateRepository::update(c, id, a_crate.into_inner())
             .map(|a_crate| json!(a_crate))
-            .map_err(|_| Custom(Status::InternalServerError, json!("Error")))
+            // Use the into() method to transform the error to a boxed version
+            .map_err(|e| server_error(e.into()))
     }).await
 }
 
@@ -53,6 +54,6 @@ pub async fn delete_crate(id: i32, db: DbConn) -> Result<NoContent, Custom<Value
     db.run(move |c| {
         CrateRepository::delete(c, id)
             .map(|_| NoContent)
-            .map_err(|_| Custom(Status::InternalServerError, json!("Error")))
+            .map_err(|e| server_error(e.into()))
     }).await
 }

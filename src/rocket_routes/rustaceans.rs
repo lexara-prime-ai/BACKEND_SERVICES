@@ -2,7 +2,7 @@ use rocket::http::Status;
 use rocket::response::status::{Custom, NoContent};
 use rocket::serde::json::{Json, serde_json::json, Value};
 
-use crate::rocket_routes::DbConn;
+use crate::rocket_routes::{DbConn, server_error};
 use crate::models::*;
 use crate::repositories::RustaceanRepository;
 
@@ -12,7 +12,7 @@ pub async fn get_rustaceans(db: DbConn) -> Result<Value, Custom<Value>> {
     db.run(|c| {
         RustaceanRepository::find_multiple(c, 100)
             .map(|rustaceans| json!(rustaceans))
-            .map_err(|_| Custom(Status::InternalServerError, json!("Error")))
+            .map_err(|e| server_error(e.into()))
     }).await
 }
 
@@ -22,7 +22,7 @@ pub async fn view_rustacean(id: i32, db: DbConn) -> Result<Value, Custom<Value>>
     db.run(move |c| {
         RustaceanRepository::find(c, id)
             .map(|rustacean| json!(rustacean))
-            .map_err(|_| Custom(Status::InternalServerError, json!("Error")))
+            .map_err(|e| server_error(e.into()))
     }).await
 }
 
@@ -33,7 +33,8 @@ pub async fn create_rustacean(new_rustacean: Json<NewRustacean>, db: DbConn) -> 
         RustaceanRepository::create(c, new_rustacean.into_inner())
             .map(|rustacean| Custom(Status::Created, json!(rustacean)))
             // Are you sure you want to expose info. about the database |e|, be sure to do away with 'e,to_string()'
-            .map_err(|e| Custom(Status::InternalServerError, json!(e.to_string())))
+            // This new implementation adds the necessary abstraction
+            .map_err(|e| server_error(e.into()))
     }).await
 }
 
@@ -43,7 +44,7 @@ pub async fn update_rustacean(id: i32, rustacean: Json<Rustacean>, db: DbConn) -
         // Use into_inner in order to unwrap new_rustacean from json
         RustaceanRepository::update(c, id, rustacean.into_inner())
             .map(|rustacean| json!(rustacean))
-            .map_err(|_| Custom(Status::InternalServerError, json!("Error")))
+            .map_err(|e| server_error(e.into()))
     }).await
 }
 
@@ -53,6 +54,6 @@ pub async fn delete_rustacean(id: i32, db: DbConn) -> Result<NoContent, Custom<V
     db.run(move |c| {
         RustaceanRepository::delete(c, id)
             .map(|_| NoContent)
-            .map_err(|_| Custom(Status::InternalServerError, json!("Error")))
+            .map_err(|e| server_error(e.into()))
     }).await
 }

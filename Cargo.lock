@@ -221,6 +221,7 @@ version = "0.1.0"
 dependencies = [
  "chrono",
  "diesel",
+ "log",
  "reqwest",
  "rocket",
  "rocket_sync_db_pools",
