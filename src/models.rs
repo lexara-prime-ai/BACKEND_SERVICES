@@ -1,5 +1,5 @@
 use chrono::NaiveDateTime;
-use diesel::{AsChangeset, Insertable, Queryable};
+use diesel::{AsChangeset, Associations, Identifiable, Insertable, Queryable};
 use rocket::serde::Deserialize;
 use serde::Serialize;
 use crate::schema::*;
@@ -49,7 +49,7 @@ pub struct NewCrate {
 }
 
 // User models
-#[derive(Queryable)]
+#[derive(Queryable, Debug, Identifiable)]
 pub struct User {
     pub id: i32,
     pub username: String,
@@ -65,7 +65,7 @@ pub struct NewUser {
 }
 
 // Role models
-#[derive(Queryable)]
+#[derive(Queryable, Debug)]
 pub struct Role {
     pub id: i32,
     pub code: String,
@@ -81,9 +81,10 @@ pub struct NewRole {
 }
 
 // Most ORMs hide the fact that a join/pivot table exists
-#[derive(Queryable)]
+#[derive(Queryable, Associations, Identifiable)]
 #[diesel(belongs_to(User))] // Define table relationship
 #[diesel(belongs_to(Role))]
+#[diesel(table_name = users_roles)]
 pub struct UserRole {
     pub user_id: i32,
     pub role_id: i32,
