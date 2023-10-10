@@ -24,7 +24,7 @@ fn main() {
                         .arg(Arg::new("username").required(true))
                         .arg(Arg::new("password").required(true))
                         // Define multiple arguments, args -> 1.. inclusive
-                        // Specify/provide a value_delimeter a.k.a value seperator
+                        // Specify/provide a value_delimiter a.k.a value separator
                         .arg(Arg::new("roles").required(true).num_args(1..).value_delimiter(','))
                 )
                 .subcommand(
