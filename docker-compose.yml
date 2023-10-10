@@ -29,5 +29,7 @@ services:
 
 
 # Testing the endpoints<Manual>:: docker-compose exec app curl -X POST 127.0.0.1:8000/rustaceans -H "Content-Type: application/json" -d '{"name": "john doe", "email": "johndoe@test.com"}'
+# Specify the binary to run<no_longer_necessary>::docker-compose exec app cargo run --bin server
+# Run the cli::docker-compose exec app cargo run --bin cli
 # Testing the endpoints:: docker-compose exec app cargo test
 # Note:: This appears to only work when using git bash on Windows
