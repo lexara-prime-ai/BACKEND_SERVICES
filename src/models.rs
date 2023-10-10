@@ -48,3 +48,51 @@ pub struct NewCrate {
     pub description: Option<String>,
 }
 
+// User models
+#[derive(Queryable)]
+pub struct User {
+    pub id: i32,
+    pub username: String,
+    pub password: String,
+    pub created_at: NaiveDateTime,
+}
+
+#[derive(Insertable)]
+#[diesel(table_name = users)]
+pub struct NewUser {
+    pub username: String,
+    pub password: String,
+}
+
+// Role models
+#[derive(Queryable)]
+pub struct Role {
+    pub id: i32,
+    pub code: String,
+    pub name: String,
+    pub created_at: NaiveDateTime,
+}
+
+#[derive(Insertable)]
+#[diesel(table_name = roles)]
+pub struct NewRole {
+    pub code: String,
+    pub name: String,
+}
+
+// Most ORMs hide the fact that a join/pivot table exists
+#[derive(Queryable)]
+#[diesel(belongs_to(User))] // Define table relationship
+#[diesel(belongs_to(Role))]
+pub struct UserRole {
+    pub user_id: i32,
+    pub role_id: i32,
+    pub id: i32,
+}
+
+#[derive(Insertable)]
+#[diesel(table_name = users_roles)]
+pub struct NewUserRole {
+    pub user_id: i32,
+    pub role_id: i32,
+}

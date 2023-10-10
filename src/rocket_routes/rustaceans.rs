@@ -20,9 +20,17 @@ pub async fn get_rustaceans(db: DbConn) -> Result<Value, Custom<Value>> {
 pub async fn view_rustacean(id: i32, db: DbConn) -> Result<Value, Custom<Value>> {
     // Move the ownership of id into the callback since the id isn't being used after db.run
     db.run(move |c| {
-        RustaceanRepository::find(c, id)
-            .map(|rustacean| json!(rustacean))
-            .map_err(|e| server_error(e.into()))
+        // Implement '404 Not Found' if id does not exist
+        match RustaceanRepository::find(c, id) {
+            Ok(rustacean) => Ok(json!(rustacean)),
+            Err(e) => {
+                if let diesel::result::Error::NotFound = e {
+                    Err(Custom(Status::NotFound, json!("404 Not Found")))
+                } else {
+                    Err(server_error(e.into()))
+                }
+            }
+        }
     }).await
 }
 
