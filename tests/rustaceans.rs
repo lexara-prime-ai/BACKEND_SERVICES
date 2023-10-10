@@ -1,37 +1,27 @@
-use reqwest::blocking::Client;
-use reqwest::StatusCode;
-use rocket::serde::json::serde_json::json;
-use rocket::serde::json::Value;
+use reqwest::{blocking::Client, StatusCode};
+use serde_json::{json, Value};
 
+pub mod common;
 
-// Utility function for creating test rustacean
-// Passing in the client as a reference prevents its consumption
-fn create_test_rustacean(client: &Client) -> Value {
-    let response = client.post("http://127.0.0.1:8000/rustaceans")
-        .json(&json!({
-            "name": "test user",
-            "email": "test@test.com",
-        }))
-        .send()
-        .unwrap();
-
-    // Assertions
-    assert_eq!(response.status(), StatusCode::CREATED);
-
-    // Grab the response for assertion
-    response.json().unwrap()
-}
+/**
+ *
+ * Note::Cargo runs each test on a separate thread
+ * Tip::It's better not to make the tests interdependent
+ *
+ */
 
 // To do:: Refactor tests in order to reduce redundancy
 #[test]
 fn test_get_rustaceans() {
+    // SETUP
     // Implement http client for making requests
     let client = Client::new();
-    let rustacean1 = create_test_rustacean(&client);
-    let rustacean2 = create_test_rustacean(&client);
+    let rustacean1 = common::create_test_rustacean(&client);
+    let rustacean2 = common::create_test_rustacean(&client);
 
+    // TEST SUITE
     // We don't care about error handling here, just unwrap XD
-    let response = client.get("http://127.0.0.1:8000/rustaceans").send().unwrap();
+    let response = client.get(format!("{}/rustaceans", common::APP_HOST)).send().unwrap();
     // Assertions
     assert_eq!(response.status(), StatusCode::OK);
 
@@ -39,12 +29,16 @@ fn test_get_rustaceans() {
 
     assert!(json.as_array().unwrap().contains(&rustacean1));
     assert!(json.as_array().unwrap().contains(&rustacean2));
+
+    // CLEAN UP
+    common::delete_test_rustacean(&client, rustacean1);
+    common::delete_test_rustacean(&client, rustacean2);
 }
 
 #[test]
 fn test_create_rustacean() {
     let client = Client::new();
-    let response = client.post("http://127.0.0.1:8000/rustaceans")
+    let response = client.post(format!("{}/rustaceans", common::APP_HOST))
         .json(&json!({
             "name": "test user",
             "email": "test@test.com",
@@ -64,14 +58,17 @@ fn test_create_rustacean() {
         "email": "test@test.com",
         "created_at": rustacean["created_at"],
     }));
+
+    // CLEAN UP
+    common::delete_test_rustacean(&client, rustacean);
 }
 
 
 #[test]
 fn test_view_rustacean() {
     let client = Client::new();
-    let rustacean: Value = create_test_rustacean(&client);
-    let response = client.get(format!("http://127.0.0.1:8000/rustaceans/{}", rustacean["id"]))
+    let rustacean: Value = common::create_test_rustacean(&client);
+    let response = client.get(format!("{}/rustaceans/{}", common::APP_HOST, rustacean["id"]))
         .send()
         .unwrap();
 
@@ -86,13 +83,15 @@ fn test_view_rustacean() {
         "email": "test@test.com",
         "created_at": rustacean["created_at"],
     }));
+
+    common::delete_test_rustacean(&client, rustacean);
 }
 
 #[test]
 fn test_update_rustacean() {
     let client = Client::new();
-    let rustacean: Value = create_test_rustacean(&client);
-    let response = client.put(format!("http://127.0.0.1:8000/rustaceans/{}", rustacean["id"]))
+    let rustacean: Value = common::create_test_rustacean(&client);
+    let response = client.put(format!("{}/rustaceans/{}", common::APP_HOST, rustacean["id"]))
         .json(&json!({
             "name": "updated user",
             "email": "updated@updated.com",
@@ -111,14 +110,16 @@ fn test_update_rustacean() {
         "email": "updated@updated.com",
         "created_at": rustacean["created_at"],
     }));
+
+    common::delete_test_rustacean(&client, rustacean);
 }
 
 
 #[test]
 fn test_delete_rustacean() {
     let client = Client::new();
-    let rustacean: Value = create_test_rustacean(&client);
-    let response = client.delete(format!("http://127.0.0.1:8000/rustaceans/{}", rustacean["id"]))
+    let rustacean: Value = common::create_test_rustacean(&client);
+    let response = client.delete(format!("{}/rustaceans/{}", common::APP_HOST, rustacean["id"]))
         .send()
         .unwrap();
 
