@@ -20,9 +20,17 @@ pub async fn get_crates(db: DbConn) -> Result<Value, Custom<Value>> {
 pub async fn view_crate(id: i32, db: DbConn) -> Result<Value, Custom<Value>> {
     // Move the ownership of id into the callback since the id isn't being used after db.run
     db.run(move |c| {
-        CrateRepository::find(c, id)
-            .map(|a_crate| json!(a_crate))
-            .map_err(|e| server_error(e.into()))
+        // Implement '404 Not Found' if id does not exist
+        match CrateRepository::find(c, id) {
+            Ok(a_crate) => Ok(json!(a_crate)),
+            Err(e) => {
+                if let diesel::result::Error::NotFound = e {
+                    Err(server_error(e.into()))
+                } else {
+                    Err(server_error(e.into()))
+                }
+            }
+        }
     }).await
 }
 

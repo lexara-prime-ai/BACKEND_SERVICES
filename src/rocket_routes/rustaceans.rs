@@ -25,7 +25,7 @@ pub async fn view_rustacean(id: i32, db: DbConn) -> Result<Value, Custom<Value>>
             Ok(rustacean) => Ok(json!(rustacean)),
             Err(e) => {
                 if let diesel::result::Error::NotFound = e {
-                    Err(Custom(Status::NotFound, json!("404 Not Found")))
+                    Err(server_error(e.into()))
                 } else {
                     Err(server_error(e.into()))
                 }
