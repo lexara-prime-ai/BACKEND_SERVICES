@@ -68,6 +68,15 @@ impl CrateRepository {
 pub struct UserRepository;
 
 impl UserRepository {
+    pub fn find_with_roles(c: &mut PgConnection) -> QueryResult<Vec<(User, Vec<(UserRole, Role)>)>> {
+        let users = users::table.load(c)?;
+        let result = users_roles::table.inner_join(roles::table)
+            // <(UserRole, Role)> indicates the type of result we're expecting -> keep the compiler happy
+            .load::<(UserRole, Role)>(c)?
+            .grouped_by(&users);
+        Ok(users.into_iter().zip(result).collect())
+    }
+
     pub fn create(c: &mut PgConnection, new_user: NewUser, role_codes: Vec<String>) -> QueryResult<User> {
         // Handle insertion
         let user = diesel::insert_into(users::table)
@@ -92,6 +101,12 @@ impl UserRepository {
         }
         Ok(user)
     }
+
+    pub fn delete(c: &mut PgConnection, id: i32) -> QueryResult<usize> {
+        // Filter in order to delete multiple role entries
+        diesel::delete(users_roles::table.filter(users_roles::user_id.eq(id))).execute(c)?;
+        diesel::delete(users::table.find(id)).execute(c)
+    }
 }
 
 pub struct RoleRepository;
@@ -106,6 +121,7 @@ impl RoleRepository {
         roles::table.filter(roles::id.eq_any(ids)).get_results(c)
     }
 
+    // To do::Inspect this -> User Roles don't seem to be printed to the console on user creation
     pub fn find_by_user(c: &mut PgConnection, user: &User) -> QueryResult<Vec<Role>> {
         let user_roles = UserRole::belonging_to(&user).get_results(c)?;
 

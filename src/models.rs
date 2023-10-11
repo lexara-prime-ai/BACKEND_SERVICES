@@ -81,7 +81,7 @@ pub struct NewRole {
 }
 
 // Most ORMs hide the fact that a join/pivot table exists
-#[derive(Queryable, Associations, Identifiable)]
+#[derive(Queryable, Associations, Identifiable, Debug)]
 #[diesel(belongs_to(User))] // Define table relationship
 #[diesel(belongs_to(Role))]
 #[diesel(table_name = users_roles)]

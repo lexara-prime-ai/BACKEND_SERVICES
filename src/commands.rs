@@ -1,3 +1,5 @@
+use argon2::{password_hash::{rand_core::OsRng, SaltString}, PasswordHasher};
+
 use diesel::{Connection, PgConnection};
 use crate::models::NewUser;
 use crate::repositories::{RoleRepository, UserRepository};
@@ -14,17 +16,35 @@ fn load_db_connection() -> PgConnection {
 pub fn create_user(username: String, password: String, role_codes: Vec<String>) {
     // Create a new connection
     let mut c = load_db_connection();
+
+    // Create a new salt
+    let salt = SaltString::generate(OsRng);
+    let argon = argon2::Argon2::default();
+    // hash_password only accepts the first argument as_bytes & the second as a reference &
+    let password_hash = argon.hash_password(password.as_bytes(), &salt).unwrap();
+
     // Create a new_user
-    let new_user = NewUser { username, password };
+    let new_user = NewUser { username, password: password_hash.to_string() };
     let user = UserRepository::create(&mut c, new_user, role_codes).unwrap(); // unwrap otherwise, Result -> QueryResult<T>
     // Print user to console | for debugging
     println!("User created: {:?}", user);
 
     let roles = RoleRepository::find_by_user(&mut c, &user).unwrap();
     // Print all roles assigned to user
+    // To do::Inspect this -> User Roles don't seem to be printed to the console on user creation
     println!("Role assigned : {:?}", roles)
 }
 
-pub fn list_users() {}
+pub fn list_users() {
+    let mut c = load_db_connection();
+    let users = UserRepository::find_with_roles(&mut c).unwrap();
+    // Loop through users
+    for user in users {
+        println!("{:?}", user);
+    }
+}
 
-pub fn delete_user(id: i32) {}
+pub fn delete_user(id: i32) {
+    let mut c = load_db_connection();
+    UserRepository::delete(&mut c, id).unwrap();
+}
