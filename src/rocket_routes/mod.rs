@@ -10,7 +10,7 @@ pub mod rustaceans;
 pub mod crates;
 pub mod authorization;
 
-#[rocket_sync_db_pools::database("postgres")]
+#[database("postgres")]
 pub struct DbConn(PgConnection);
 
 #[derive(Database)]

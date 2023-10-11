@@ -17,8 +17,14 @@ pub async fn login(credentials: Json<auth::Credentials>, db: DbConn, mut cache: 
     let username = credentials.username.clone();
 
     let user = db.run(move |c| {
+        // Modified to display unauthorized if a non existing username is passed
         UserRepository::find_by_username(c, &username)
-            .map_err(|e| server_error(e.into()))
+            .map_err(|e| {
+                match e {
+                    diesel::result::Error::NotFound => Custom(Status::Unauthorized, json!("Wrong credentials!")),
+                    _ => server_error(e.into()),
+                }
+            })
     }).await?;
 
     // Create session_id a.k.a token
