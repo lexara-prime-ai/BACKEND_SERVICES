@@ -6,9 +6,13 @@ use crate::rocket_routes::{DbConn, not_found, server_error};
 use crate::models::*;
 use crate::repositories::RustaceanRepository;
 
+/*
+* _user -> acts as a trait for implementing route protection
+*/
+
 // Route configuration
 #[rocket::get("/rustaceans")]
-pub async fn get_rustaceans(db: DbConn) -> Result<Value, Custom<Value>> {
+pub async fn get_rustaceans(db: DbConn, _user: User) -> Result<Value, Custom<Value>> {
     db.run(|c| {
         RustaceanRepository::find_multiple(c, 100)
             .map(|rustaceans| json!(rustaceans))
@@ -17,7 +21,7 @@ pub async fn get_rustaceans(db: DbConn) -> Result<Value, Custom<Value>> {
 }
 
 #[rocket::get("/rustaceans/<id>")]
-pub async fn view_rustacean(id: i32, db: DbConn) -> Result<Value, Custom<Value>> {
+pub async fn view_rustacean(id: i32, db: DbConn, _user: User) -> Result<Value, Custom<Value>> {
     // Move the ownership of id into the callback since the id isn't being used after db.run
     db.run(move |c| {
         // Implement '404 Not Found' if id does not exist
@@ -35,7 +39,7 @@ pub async fn view_rustacean(id: i32, db: DbConn) -> Result<Value, Custom<Value>>
 }
 
 #[rocket::post("/rustaceans", format = "json", data = "<new_rustacean>")]
-pub async fn create_rustacean(new_rustacean: Json<NewRustacean>, db: DbConn) -> Result<Custom<Value>, Custom<Value>> {
+pub async fn create_rustacean(new_rustacean: Json<NewRustacean>, db: DbConn, _user: User) -> Result<Custom<Value>, Custom<Value>> {
     db.run(move |c| {
         // Use into_inner in order to unwrap new_rustacean from json
         RustaceanRepository::create(c, new_rustacean.into_inner())
@@ -47,7 +51,7 @@ pub async fn create_rustacean(new_rustacean: Json<NewRustacean>, db: DbConn) -> 
 }
 
 #[rocket::put("/rustaceans/<id>", format = "json", data = "<rustacean>")]
-pub async fn update_rustacean(id: i32, rustacean: Json<Rustacean>, db: DbConn) -> Result<Value, Custom<Value>> {
+pub async fn update_rustacean(id: i32, rustacean: Json<Rustacean>, db: DbConn, _user: User) -> Result<Value, Custom<Value>> {
     db.run(move |c| {
         // Use into_inner in order to unwrap new_rustacean from json
         RustaceanRepository::update(c, id, rustacean.into_inner())
@@ -57,7 +61,7 @@ pub async fn update_rustacean(id: i32, rustacean: Json<Rustacean>, db: DbConn) -
 }
 
 #[rocket::delete("/rustaceans/<id>")]
-pub async fn delete_rustacean(id: i32, db: DbConn) -> Result<NoContent, Custom<Value>> {
+pub async fn delete_rustacean(id: i32, db: DbConn, _user: User) -> Result<NoContent, Custom<Value>> {
     // Return <NoContent> on delete
     db.run(move |c| {
         RustaceanRepository::delete(c, id)

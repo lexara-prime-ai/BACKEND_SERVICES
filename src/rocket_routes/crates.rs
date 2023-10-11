@@ -8,7 +8,7 @@ use crate::repositories::CrateRepository;
 
 // Route configuration
 #[rocket::get("/crates")]
-pub async fn get_crates(db: DbConn) -> Result<Value, Custom<Value>> {
+pub async fn get_crates(db: DbConn, _user: User) -> Result<Value, Custom<Value>> {
     db.run(|c| {
         CrateRepository::find_multiple(c, 100)
             .map(|crates| json!(crates))
@@ -17,7 +17,7 @@ pub async fn get_crates(db: DbConn) -> Result<Value, Custom<Value>> {
 }
 
 #[rocket::get("/crates/<id>")]
-pub async fn view_crate(id: i32, db: DbConn) -> Result<Value, Custom<Value>> {
+pub async fn view_crate(id: i32, db: DbConn, _user: User) -> Result<Value, Custom<Value>> {
     // Move the ownership of id into the callback since the id isn't being used after db.run
     db.run(move |c| {
         // Implement '404 Not Found' if id does not exist
@@ -35,7 +35,7 @@ pub async fn view_crate(id: i32, db: DbConn) -> Result<Value, Custom<Value>> {
 }
 
 #[rocket::post("/crates", format = "json", data = "<new_crate>")]
-pub async fn create_crate(new_crate: Json<NewCrate>, db: DbConn) -> Result<Custom<Value>, Custom<Value>> {
+pub async fn create_crate(new_crate: Json<NewCrate>, db: DbConn, _user: User) -> Result<Custom<Value>, Custom<Value>> {
     db.run(move |c| {
         // Use into_inner in order to unwrap new_crate from json
         CrateRepository::create(c, new_crate.into_inner())
@@ -46,7 +46,7 @@ pub async fn create_crate(new_crate: Json<NewCrate>, db: DbConn) -> Result<Custo
 }
 
 #[rocket::put("/crates/<id>", format = "json", data = "<a_crate>")]
-pub async fn update_crate(id: i32, a_crate: Json<Crate>, db: DbConn) -> Result<Value, Custom<Value>> {
+pub async fn update_crate(id: i32, a_crate: Json<Crate>, db: DbConn, _user: User) -> Result<Value, Custom<Value>> {
     db.run(move |c| {
         // Use into_inner in order to unwrap new_crate from json
         CrateRepository::update(c, id, a_crate.into_inner())
@@ -57,7 +57,7 @@ pub async fn update_crate(id: i32, a_crate: Json<Crate>, db: DbConn) -> Result<V
 }
 
 #[rocket::delete("/crates/<id>")]
-pub async fn delete_crate(id: i32, db: DbConn) -> Result<NoContent, Custom<Value>> {
+pub async fn delete_crate(id: i32, db: DbConn, _user: User) -> Result<NoContent, Custom<Value>> {
     // Return <NoContent> on delete
     db.run(move |c| {
         CrateRepository::delete(c, id)
