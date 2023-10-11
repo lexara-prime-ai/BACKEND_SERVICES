@@ -306,6 +306,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "acbf1af155f9b9ef647e42cdc158db4b64a1b61f743629225fde6f3e0be2a7c7"
 
 [[package]]
+name = "combine"
+version = "4.6.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "35ed6e9d84f0b51a7f52daf1c7d71dd136fd7a3f41a8462b8cdb8c78d920fad4"
+dependencies = [
+ "bytes",
+ "futures-core",
+ "memchr",
+ "pin-project-lite",
+ "tokio",
+ "tokio-util",
+]
+
+[[package]]
 name = "cookie"
 version = "0.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -350,8 +364,10 @@ dependencies = [
  "clap",
  "diesel",
  "log",
+ "rand",
  "reqwest",
  "rocket",
+ "rocket_db_pools",
  "rocket_sync_db_pools",
  "serde",
  "serde_json",
@@ -365,6 +381,38 @@ checksum = "1bfb12502f3fc46cca1bb51ac28df9d618d813cdc3d2f25b9fe775a34af26bb3"
 dependencies = [
  "generic-array",
  "typenum",
+]
+
+[[package]]
+name = "deadpool"
+version = "0.9.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "421fe0f90f2ab22016f32a9881be5134fdd71c65298917084b0c7477cbc3856e"
+dependencies = [
+ "async-trait",
+ "deadpool-runtime",
+ "num_cpus",
+ "retain_mut",
+ "tokio",
+]
+
+[[package]]
+name = "deadpool-redis"
+version = "0.11.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2b8bde44cbfdf17ae5baa45c9f43073b320f1a19955389315629304a23909ad2"
+dependencies = [
+ "deadpool",
+ "redis",
+]
+
+[[package]]
+name = "deadpool-runtime"
+version = "0.1.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "63dfa964fe2a66f3fde91fc70b267fe193d822c7e603e2a675a49a7f46ad3f49"
+dependencies = [
+ "tokio",
 ]
 
 [[package]]
@@ -1247,6 +1295,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "redis"
+version = "0.22.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "aa8455fa3621f6b41c514946de66ea0531f57ca017b2e6c7cc368035ea5b46df"
+dependencies = [
+ "async-trait",
+ "bytes",
+ "combine",
+ "futures-util",
+ "itoa",
+ "percent-encoding",
+ "pin-project-lite",
+ "ryu",
+ "tokio",
+ "tokio-util",
+ "url",
+]
+
+[[package]]
 name = "redox_syscall"
 version = "0.3.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1358,6 +1425,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "retain_mut"
+version = "0.1.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4389f1d5789befaf6029ebd9f7dac4af7f7e3d61b69d4f30e2ac02b57e7712b0"
+
+[[package]]
 name = "rocket"
 version = "0.5.0-rc.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1410,6 +1483,29 @@ dependencies = [
  "rocket_http",
  "syn",
  "unicode-xid",
+]
+
+[[package]]
+name = "rocket_db_pools"
+version = "0.1.0-rc.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e841c280fd98c042cd3d0353c31920da78a4eb19b12f0e0e3b7a362abe66bec0"
+dependencies = [
+ "deadpool",
+ "deadpool-redis",
+ "rocket",
+ "rocket_db_pools_codegen",
+ "version_check",
+]
+
+[[package]]
+name = "rocket_db_pools_codegen"
+version = "0.1.0-rc.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e26ff5b517c54ffe049209e6126705fd455529ff0b37c83023d56bf8fd677a76"
+dependencies = [
+ "devise",
+ "quote",
 ]
 
 [[package]]
