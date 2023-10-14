@@ -38,7 +38,7 @@ fn test_login() {
     assert!(json.get("token").is_some());
     assert_eq!(json["token"].as_str().len(), 128);
 
-    // Test for wrong password
+    // Test for wrong credentials
     let response = client.post(format!("{}/login", common::APP_HOST))
         .json(&json!({
             "username": "test_admi",
