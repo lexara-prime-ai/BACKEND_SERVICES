@@ -1,4 +1,5 @@
-use reqwest::{blocking::Client, StatusCode};
+use reqwest::blocking::Client;
+use reqwest::StatusCode;
 use serde_json::{json, Value};
 
 pub mod common;
@@ -19,7 +20,7 @@ pub mod common;
 fn test_get_crates() {
     // SETUP
     // Implement http client for making requests
-    let client = Client::new();
+    let client = common::get_client_with_logged_in_admin();
     let rustacean = common::create_test_rustacean(&client);
 
     let a_crate = common::create_test_crate(&client, &rustacean);
@@ -43,8 +44,21 @@ fn test_get_crates() {
 }
 
 #[test]
-fn test_create_crate() {
+fn test_get_crates_without_session_id() {
+    // SETUP
+    // Implement http client for making requests
     let client = Client::new();
+
+    // TEST SUITE
+    // We don't care about error handling here, just unwrap XD
+    let response = client.get(format!("{}/crates", common::APP_HOST)).send().unwrap();
+    // Assertions
+    assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
+}
+
+#[test]
+fn test_create_crate() {
+    let client = common::get_client_with_logged_in_admin();
     // Create a rustacean for testing
     let rustacean = common::create_test_rustacean(&client);
     let response = client.post(format!("{}/crates", common::APP_HOST))
@@ -82,7 +96,7 @@ fn test_create_crate() {
 
 #[test]
 fn test_view_crate() {
-    let client = Client::new();
+    let client = common::get_client_with_logged_in_admin();
     // Create a rustacean for testing
     let rustacean = common::create_test_rustacean(&client);
     // Create test crate
@@ -116,7 +130,7 @@ fn test_view_crate() {
 // Test for non existent crate
 #[test]
 fn test_view_nonexistent_crate() {
-    let client = Client::new();
+    let client = common::get_client_with_logged_in_admin();
     let non_existent_id = 64290;
 
     let response = client.get(format!("{}/crates/{}", common::APP_HOST, non_existent_id))
@@ -129,7 +143,7 @@ fn test_view_nonexistent_crate() {
 
 #[test]
 fn test_update_crate() {
-    let client = Client::new();
+    let client = common::get_client_with_logged_in_admin();
     // Create a rustacean for testing
     let rustacean = common::create_test_rustacean(&client);
     // Create test crate
@@ -201,7 +215,7 @@ fn test_update_crate() {
 
 #[test]
 fn test_delete_crate() {
-    let client = Client::new();
+    let client = common::get_client_with_logged_in_admin();
     // Create a rustacean for testing
     let rustacean = common::create_test_rustacean(&client);
     // Create test crate

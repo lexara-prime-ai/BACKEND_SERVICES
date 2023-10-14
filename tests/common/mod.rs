@@ -1,4 +1,8 @@
-use reqwest::{blocking::Client, StatusCode};
+use std::process::Command;
+
+use reqwest::{blocking::Client, header, StatusCode};
+use reqwest::blocking::ClientBuilder;
+use reqwest::header::{HeaderMap, HeaderValue};
 use serde_json::{json, Value};
 
 // Define a static lifetime for the BASE URL
@@ -58,4 +62,46 @@ pub fn delete_test_crate(client: &Client, a_crate: Value) {
         .unwrap();
 
     assert_eq!(response.status(), StatusCode::NO_CONTENT);
+}
+
+pub fn get_client_with_logged_in_admin() -> Client {
+    // Create 'test_admin'
+    let output = Command::new("cargo")
+        .arg("run")
+        .arg("--bin")
+        .arg("cli")
+        .arg("users")
+        .arg("create")
+        .arg("test_admin")
+        .arg("1234")
+        .arg("admin")
+        .output()
+        .unwrap();
+
+    println!("{:?}", output);
+
+    let client = Client::new();
+
+    let response = client.post(format!("{}/login", APP_HOST))
+        .json(&json!({
+            "username": "test_admin",
+            "password": "1234",
+        }))
+        .send()
+        .unwrap();
+
+    assert_eq!(response.status(), StatusCode::OK);
+    let json: Value = response.json().unwrap();
+    assert!(json.get("token").is_some());
+
+    let header_value = format!("Bearer {}", json["token"].as_str().unwrap());
+
+    let mut headers = HeaderMap::new();
+    headers.insert(
+        header::AUTHORIZATION,
+        HeaderValue::from_str(&header_value).unwrap(),
+    );
+
+    // ClientBuilder::new().default_headers(headers).build()
+    ClientBuilder::new().default_headers(headers).build().unwrap()
 }

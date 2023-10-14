@@ -11,7 +11,7 @@ services:
     command: [ "postgres", "-c", "log_statement=all" ]
 
     ports:
-      - "4000:5432"
+      - "5500:5432"
 
   redis:
     image: redis:latest

@@ -10,7 +10,7 @@ use crate::rocket_routes::{CacheConn, server_error};
 use super::DbConn;
 
 // Wrap 'CacheConn' inside a Connection from:: rocket_db_pools::Connection in order to be able to use it
-// Referencing will not guaranttee an available connection
+// Referencing will not guarantee an available connection
 #[rocket::post("/login", format = "json", data = "<credentials>")]
 pub async fn login(credentials: Json<auth::Credentials>, db: DbConn, mut cache: Connection<CacheConn>) -> Result<Value, Custom<Value>> {
     // Store username in a local variable | clone in order to make it available for future referencing

@@ -1,4 +1,5 @@
-use reqwest::{blocking::Client, StatusCode};
+use reqwest::blocking::Client;
+use reqwest::StatusCode;
 use serde_json::{json, Value};
 
 pub mod common;
@@ -15,7 +16,7 @@ pub mod common;
 fn test_get_rustaceans() {
     // SETUP
     // Implement http client for making requests
-    let client = Client::new();
+    let client = common::get_client_with_logged_in_admin();
     let rustacean1 = common::create_test_rustacean(&client);
     let rustacean2 = common::create_test_rustacean(&client);
 
@@ -36,8 +37,21 @@ fn test_get_rustaceans() {
 }
 
 #[test]
-fn test_create_rustacean() {
+fn test_get_rustaceans_without_session_id() {
+    // SETUP
+    // Implement http client for making requests
     let client = Client::new();
+
+    // TEST SUITE
+    // We don't care about error handling here, just unwrap XD
+    let response = client.get(format!("{}/rustaceans", common::APP_HOST)).send().unwrap();
+    // Assertions
+    assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
+}
+
+#[test]
+fn test_create_rustacean() {
+    let client = common::get_client_with_logged_in_admin();
     let response = client.post(format!("{}/rustaceans", common::APP_HOST))
         .json(&json!({
             "name": "test user",
@@ -66,7 +80,7 @@ fn test_create_rustacean() {
 
 #[test]
 fn test_view_rustacean() {
-    let client = Client::new();
+    let client = common::get_client_with_logged_in_admin();
     let rustacean: Value = common::create_test_rustacean(&client);
     let response = client.get(format!("{}/rustaceans/{}", common::APP_HOST, rustacean["id"]))
         .send()
@@ -90,7 +104,7 @@ fn test_view_rustacean() {
 // Test for non existent rustacean
 #[test]
 fn test_view_nonexistent_rustacean() {
-    let client = Client::new();
+    let client = common::get_client_with_logged_in_admin();
     let non_existent_id = 64290;
 
     let response = client.get(format!("{}/rustaceans/{}", common::APP_HOST, non_existent_id))
@@ -102,7 +116,7 @@ fn test_view_nonexistent_rustacean() {
 
 #[test]
 fn test_update_rustacean() {
-    let client = Client::new();
+    let client = common::get_client_with_logged_in_admin();
     let rustacean: Value = common::create_test_rustacean(&client);
     let response = client.put(format!("{}/rustaceans/{}", common::APP_HOST, rustacean["id"]))
         .json(&json!({
@@ -130,7 +144,7 @@ fn test_update_rustacean() {
 
 #[test]
 fn test_delete_rustacean() {
-    let client = Client::new();
+    let client = common::get_client_with_logged_in_admin();
     let rustacean: Value = common::create_test_rustacean(&client);
     let response = client.delete(format!("{}/rustaceans/{}", common::APP_HOST, rustacean["id"]))
         .send()
