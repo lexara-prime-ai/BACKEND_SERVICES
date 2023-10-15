@@ -30,15 +30,15 @@ services:
       # Mailing server credentials
       - SMTP_HOST=smtp.gmail.com
       - SMTP_USERNAME=stackmewbie@gmail.com
-      - SMTP_PASSWORD=XXXXXXXX
+      - SMTP_PASSWORD=akzxjwnazhughriu
     ports:
-      - "8000:8000"
+      - "4000:8000"
     volumes:
       - ./:/app
 
 
 
-# Testing the endpoints<Manual>:: docker-compose exec app curl -X POST 127.0.0.1:8000/rustaceans -H "Content-Type: application/json" -d '{"name": "john doe", "email": "johndoe@test.com"}'
+# DOCUMENTATION
 # Specify the binary to run<no_longer_necessary>::docker-compose exec app cargo run --bin server
 # Run the cli::docker-compose exec app cargo run --bin cli
 # Testing the endpoints:: docker-compose exec app cargo test
@@ -47,6 +47,12 @@ services:
 # Interacting with the cli::
 # -- Add a user --
 # docker-compose exec app cargo run --bin cli users create admin mysecurepassword admin
+
+# -- Add a rustacean --
+# docker-compose exec app curl -X POST 127.0.0.1:8000/rustaceans -H "Content-Type: application/json" -H "Authorization: Bearer d4xyRDPup08xBSyGkrHcMxkTXWKCGIwPFzFl7pANF6cCck3ySbvL3CKFsFzEsf9k2MPWiWLiD3WirAEbAUll1UXmicXSUcURKhM0yIbluFyvjQkVWCicPnLsAqPZZqtr" -d '{"name": "johny", "email": "jd@gmail.com"}'
+
+# -- Add a crate --
+# docker-compose exec app curl -X POST 127.0.0.1:8000/crates -H "Content-Type: application/json" -H "Authorization: Bearer d4xyRDPup08xBSyGkrHcMxkTXWKCGIwPFzFl7pANF6cCck3ySbvL3CKFsFzEsf9k2MPWiWLiD3WirAEbAUll1UXmicXSUcURKhM0yIbluFyvjQkVWCicPnLsAqPZZqtr" -d '{"rustacean_id": 1, "code": "101", "name": "my_crate", "version": "1.2", "description": "a short description"}'
 
 # Sending emails
 # docker-compose exec app cargo run --bin cli digest-send <your_email_address> duration e.g 24

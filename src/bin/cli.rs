@@ -60,7 +60,7 @@ fn main() {
             _ => {}
         },
         Some(("digest-send", sub_matches)) => cr8s::commands::send_digest(
-            sub_matches.get_one::<String>("to").unwrap().to_owned(),
+            sub_matches.get_one::<String>("to".trim()).unwrap().to_owned(),
             sub_matches.get_one::<i32>("hours_since").unwrap().to_owned(),
         ),
         _ => {}

@@ -16,12 +16,13 @@ impl HtmlMailer {
 
         let message = Message::builder()
             .subject("Cr8s digest")
-            .from("Cr8s stacknewbie@gmail.com".parse()?)
+            .from("Cr8s irfanghat@hotmail.com".parse()?)
             .to(to.parse()?)
             .header(ContentType::TEXT_HTML)
             .body(html_body)?;
 
-        let mailer = SmtpTransport::relay(&self.smtp_host)?
+        let mailer = SmtpTransport::relay(&self.smtp_host)
+            .unwrap()
             .credentials(self.credentials)
             .build();
 

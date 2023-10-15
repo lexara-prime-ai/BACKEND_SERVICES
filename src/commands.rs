@@ -80,14 +80,11 @@ pub fn send_digest(to: String, hours_since: i32) {
 
 
         // Load host info from ENV variables i.e SMTP_HOST etc
-        let smtp_host = std::env::var("SMTP_HOST")
-            .expect("Cannot load SMTP host from env");
+        let smtp_host = "".to_string();
 
-        let smtp_username = std::env::var("SMTP_USERNAME")
-            .expect("Cannot load SMTP username from env");
+        let smtp_username = "stackmewbie@gmail.com".to_string();
 
-        let smtp_password = std::env::var("SMTP_PASSWORD")
-            .expect("Cannot load SMTP password from env");
+        let smtp_password = "akzxjwnazhughriu".to_string();
 
         // Create credential struct
         let credentials = Credentials::new(smtp_username, smtp_password);
