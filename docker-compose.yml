@@ -26,6 +26,11 @@ services:
           postgres={url=postgres://postgres:postgres@postgres/app_db},
           redis={url=redis://redis:6379}
         }
+
+      # Mailing server credentials
+      - SMTP_HOST=smtp.gmail.com
+      - SMTP_USERNAME=stackmewbie@gmail.com
+      - SMTP_PASSWORD=akzxjwnazhughriu
     ports:
       - "8000:8000"
     volumes:
@@ -42,3 +47,6 @@ services:
 # Interacting with the cli::
 # -- Add a user --
 # docker-compose exec app cargo run --bin cli users create admin mysecurepassword admin
+
+# Sending emails
+# docker-compose exec app cargo run --bin cli digest-send <your_email_address> duration e.g 24

@@ -56,10 +56,11 @@ pub struct NewCrate {
 }
 
 // User models
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug, Identifiable, Serialize)]
 pub struct User {
     pub id: i32,
     pub username: String,
+    #[serde(skip_serializing)]
     pub password: String,
     pub created_at: NaiveDateTime,
 }

@@ -27,6 +27,8 @@ fn test_get_crates() {
     let b_crate = common::create_test_crate(&client, &rustacean);
 
     // TEST SUITE
+    // Switch -> Viewer :: for viewing
+    let client = common::get_client_with_logged_in_viewer();
     // We don't care about error handling here, just unwrap XD
     let response = client.get(format!("{}/crates", common::APP_HOST)).send().unwrap();
     // Assertions
@@ -36,6 +38,9 @@ fn test_get_crates() {
 
     assert!(json.as_array().unwrap().contains(&a_crate));
     assert!(json.as_array().unwrap().contains(&b_crate));
+
+    // Switch back -> Admin :: for clean up
+    let client = common::get_client_with_logged_in_admin();
 
     // CLEAN UP
     common::delete_test_crate(&client, a_crate);
@@ -101,6 +106,9 @@ fn test_view_crate() {
     let rustacean = common::create_test_rustacean(&client);
     // Create test crate
     let a_crate = common::create_test_crate(&client, &rustacean);
+
+    // Switch -> Viewer :: for viewing
+    let client = common::get_client_with_logged_in_viewer();
     let response = client.get(format!("{}/crates/{}", common::APP_HOST, a_crate["id"]))
         .send()
         .unwrap();
@@ -120,6 +128,8 @@ fn test_view_crate() {
         "created_at": a_crate["created_at"],
     }));
 
+    // Switch back -> Admin :: for clean up
+    let client = common::get_client_with_logged_in_admin();
     // CLEAN UP
     // In this case order matters due to the table relationships
     // -> Attempting to delete the rustacean first will result in a error

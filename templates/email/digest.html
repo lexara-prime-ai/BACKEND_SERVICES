@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cr8s | Daily Digest</title>
+</head>
+<body>
+<header>
+    <h1>
+        Your Daily Digest...
+    </h1>
+</header>
+
+<section>
+    <strong>
+        The list below contains crates that were added in the past 24 hours
+    </strong>
+</section>
+
+<section id="pageContent">
+    <main role="main">
+        {% for crate in crates %}
+        <article>
+            <h2>
+                {{ crate.name }} - <code>{{ crate.code }} {{ crate.version }}</code>
+            </h2>
+            <p>{{ crate.description }}</p>
+            <small>{{ crate.created_at }}</small>
+        </article>
+        {% endfor %}
+    </main>
+</section>
+
+<section>
+    <footer>
+        <p>
+            &copy; {{ year }} Generated and sent by cr8s | api.
+        </p>
+    </footer>
+</section>
+
+</body>
+</html>

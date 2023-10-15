@@ -5,6 +5,7 @@ use rocket_db_pools::Connection;
 use rocket_db_pools::deadpool_redis::redis::AsyncCommands;
 use serde_json::{json, Value};
 use crate::auth;
+use crate::models::User;
 use crate::repositories::UserRepository;
 use crate::rocket_routes::{CacheConn, server_error};
 use super::DbConn;
@@ -40,5 +41,11 @@ pub async fn login(credentials: Json<auth::Credentials>, db: DbConn, mut cache: 
         .map(|_| json!({"token": session_id}))
         .map_err(|e| server_error(e.into()))
 }
+
+#[rocket::get("/me")]
+pub fn me(user: User) -> Value {
+    json!(user)
+}
+
 
 
