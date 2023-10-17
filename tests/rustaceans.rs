@@ -21,6 +21,8 @@ fn test_get_rustaceans() {
     let rustacean2 = common::create_test_rustacean(&client);
 
     // TEST SUITE
+    // Switch -> Viewer :: for viewing
+    let client = common::get_client_with_logged_in_viewer();
     // We don't care about error handling here, just unwrap XD
     let response = client.get(format!("{}/rustaceans", common::APP_HOST)).send().unwrap();
     // Assertions
@@ -31,6 +33,8 @@ fn test_get_rustaceans() {
     assert!(json.as_array().unwrap().contains(&rustacean1));
     assert!(json.as_array().unwrap().contains(&rustacean2));
 
+    // Switch back -> Admin :: for clean up
+    let client = common::get_client_with_logged_in_admin();
     // CLEAN UP
     common::delete_test_rustacean(&client, rustacean1);
     common::delete_test_rustacean(&client, rustacean2);
@@ -82,6 +86,9 @@ fn test_create_rustacean() {
 fn test_view_rustacean() {
     let client = common::get_client_with_logged_in_admin();
     let rustacean: Value = common::create_test_rustacean(&client);
+
+    // Switch -> Viewer :: for viewing
+    let client = common::get_client_with_logged_in_viewer();
     let response = client.get(format!("{}/rustaceans/{}", common::APP_HOST, rustacean["id"]))
         .send()
         .unwrap();
@@ -98,6 +105,8 @@ fn test_view_rustacean() {
         "created_at": rustacean["created_at"],
     }));
 
+    // Switch back -> Admin :: for clean up
+    let client = common::get_client_with_logged_in_admin();
     common::delete_test_rustacean(&client, rustacean);
 }
 

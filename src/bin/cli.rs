@@ -36,7 +36,14 @@ fn main() {
                         .about("Delete user by ID")
                         .arg(Arg::new("id").required(true).value_parser(clap::value_parser!(i32)))
                 )
-        ).get_matches();
+        )
+        .subcommand(
+            Command::new("digest-send")
+                .about("Send an email with the newest crates")
+                .arg(Arg::new("to").required(true))
+                .arg(Arg::new("hours_since").required(true).value_parser(clap::value_parser!(i32)))
+        )
+        .get_matches();
 
     match matches.subcommand() {
         Some(("users", sub_matches)) => match sub_matches.subcommand() {
@@ -52,6 +59,10 @@ fn main() {
             ),
             _ => {}
         },
+        Some(("digest-send", sub_matches)) => cr8s::commands::send_digest(
+            sub_matches.get_one::<String>("to".trim()).unwrap().to_owned(),
+            sub_matches.get_one::<i32>("hours_since").unwrap().to_owned(),
+        ),
         _ => {}
     }
 }

@@ -6,6 +6,8 @@ use rocket_db_pools::Database;
 async fn main() {
     let _ = rocket::build()
         .mount("/", rocket::routes![
+            cr8s::rocket_routes::options,
+            cr8s::rocket_routes::authorization::me,
             cr8s::rocket_routes::authorization::login,
             cr8s::rocket_routes::crates::get_crates,
             cr8s::rocket_routes::crates::view_crate,
@@ -19,6 +21,7 @@ async fn main() {
             cr8s::rocket_routes::rustaceans::delete_rustacean,
 
         ])
+        .attach(cr8s::rocket_routes::Cors)
         .attach(cr8s::rocket_routes::DbConn::fairing())
         .attach(cr8s::rocket_routes::CacheConn::init())
         .launch()

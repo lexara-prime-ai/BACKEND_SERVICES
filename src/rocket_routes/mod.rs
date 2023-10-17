@@ -1,7 +1,8 @@
 use diesel::PgConnection;
+use rocket::fairing::{Fairing, Info, Kind};
 use rocket::request::Outcome;
 use rocket::http::Status;
-use rocket::Request;
+use rocket::{Request, Response};
 use rocket::request::FromRequest;
 use rocket::response::status::Custom;
 use rocket_sync_db_pools;
@@ -34,6 +35,30 @@ pub fn server_error(e: Box<dyn std::error::Error>) -> Custom<Value> {
 pub fn not_found(e: Box<dyn std::error::Error>) -> Custom<Value> {
     log::error!("{}", e);
     Custom(Status::NotFound, json!("404 Not Found"))
+}
+
+// Handle response to preflight requests
+#[rocket::options("/<_route_args..>")]
+pub fn options(_route_args: Option<std::path::PathBuf>) {
+    // Handle CORS header via -> fairing
+}
+
+pub struct Cors;
+
+#[rocket::async_trait]
+impl Fairing for Cors {
+    fn info(&self) -> Info {
+        Info {
+            name: "Append CORS headers in responses",
+            kind: Kind::Response,
+        }
+    }
+    async fn on_response<'r>(&self, _req: &'r Request<'_>, res: &mut Response<'r>) {
+        res.set_raw_header("Access-Control-Allow-Origin", "*");
+        res.set_raw_header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+        res.set_raw_header("Access-Control-Allow-Headers", "*");
+        res.set_raw_header("Access-Control-Allow-Credentials", "true");
+    }
 }
 
 // Define a User with 'edit' permissions

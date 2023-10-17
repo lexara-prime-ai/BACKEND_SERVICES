@@ -1,3 +1,6 @@
+extern crate diesel;
+extern crate rocket;
+
 pub mod auth;
 pub mod models;
 pub mod schema;
