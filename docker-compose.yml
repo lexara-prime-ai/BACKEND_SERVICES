@@ -28,9 +28,9 @@ services:
         }
 
       # Mailing server credentials
-      - SMTP_HOST=smtp.gmail.com
-      - SMTP_USERNAME=stackmewbie@gmail.com
-      - SMTP_PASSWORD=akzxjwnazhughriu
+      - SMTP_HOST=
+      - FROM_EMAIL=
+      - SMTP_KEY=
     ports:
       - "4000:8000"
     volumes:

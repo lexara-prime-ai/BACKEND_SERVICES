@@ -2,7 +2,6 @@ extern crate diesel;
 extern crate rocket;
 
 pub mod auth;
-mod mail;
 pub mod models;
 pub mod schema;
 pub mod repositories;

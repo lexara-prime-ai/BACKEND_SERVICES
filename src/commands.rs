@@ -6,9 +6,13 @@ use lettre::transport::smtp::authentication::Credentials;
 
 use tera::{Context, Tera};
 use crate::auth;
-use crate::mail::HtmlMailer;
+
 use crate::models::{NewUser, RoleCode};
 use crate::repositories::{CrateRepository, RoleRepository, UserRepository};
+
+use lettre::message::header::ContentType;
+use lettre::{Message, SmtpTransport, Transport};
+
 
 // Load database connection
 fn load_db_connection() -> PgConnection {
@@ -58,38 +62,51 @@ pub fn delete_user(id: i32) {
     UserRepository::delete(&mut c, id).unwrap();
 }
 
+/**********************
+    ::MAILING LOGIC::
+************************/
 pub fn send_digest(to: String, hours_since: i32) {
-    println!("Establishing connection...");
-
     let mut c = load_db_connection();
     let tera = load_template_engine();
-
-    println!("Connection established...\nProceeding...");
     let crates = CrateRepository::find_since(&mut c, hours_since).unwrap();
-    // Check if crates are available | if not don't send an email
     if crates.len() > 0 {
-        // Debugging...
         println!("Sending email digest for {} crates...", crates.len());
-
         let year = Utc::now().year();
-        // Create Tera context
+
         let mut context = Context::new();
-        // Add context
         context.insert("crates", &crates);
         context.insert("year", &year);
 
+        let html_body = tera.render("email/digest.html", &context).unwrap();
 
-        // Load host info from ENV variables i.e SMTP_HOST etc
-        let smtp_host = "".to_string();
+        // TO DO::Load host info from ENV variables i.e SMTP_HOST etc
+        let smtp_key = "";
+        let from_email = "";
+        let host = "";
 
-        let smtp_username = "stackmewbie@gmail.com".to_string();
+        let email: Message = Message::builder()
+            .from(from_email.parse().unwrap())
+            .to(to.parse().unwrap())
+            .subject("Cr8s Digest")
+            .header(ContentType::TEXT_HTML)
+            .body(html_body)
+            .unwrap();
 
-        let smtp_password = "akzxjwnazhughriu".to_string();
+        let mailer: SmtpTransport = SmtpTransport::relay(&host)
+            .unwrap()
+            .credentials(Credentials::new(
+                from_email.to_string(),
+                smtp_key.to_string(),
+            ))
+            .build();
 
-        // Create credential struct
-        let credentials = Credentials::new(smtp_username, smtp_password);
-        let mailer = HtmlMailer { smtp_host, credentials, template_engine: tera };
-        // Send email with custom implementation -> send_email()
-        mailer.send_email(&to, "email/digest.html", &context).unwrap();
+        match mailer.send(&email) {
+            Ok(_) => println!("Email sent successfully"),
+            Err(e) => panic!("Could not send email: {:?}", e)
+        }
     }
 }
+
+
+
+
