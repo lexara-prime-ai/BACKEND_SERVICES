@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="SqlDialectMappings">
+    <file url="file://$APPLICATION_CONFIG_DIR$/consoles/db/1bf411b3-f570-47c9-80a2-4143921b5a34/console.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/migrations/2023-10-07-083133_create_rustaceans/up.sql" dialect="GenericSQL" />
     <file url="PROJECT" dialect="PostgreSQL" />
   </component>
